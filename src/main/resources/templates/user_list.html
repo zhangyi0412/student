@@ -52,11 +52,20 @@
         var form = layui.form;
         //增加用户按钮事件
         $(document).on('click', '#addUser', function () {
+            form.val("updateForm",{
+                username:null,
+                email:null,
+                tel:null,
+                id:null,
+                status:null
+            })
+            form.render();
+            // 打开模态框
             layer.open({
-                title: "新增用户",
-                type: 2,
-                area: ['500px', "500px"],
-                content: '/user/addUserUI'//这里content是一个URL，如果你不想让iframe出现滚动条，你还可以content: ['http://sentsin.com', 'no']
+                type: 1,
+                title: "新增",
+                area: '500px',
+                content: $('#update') //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
             });
         });
 
@@ -250,15 +259,19 @@
         });
 
         // 更新用户
-        form.on('submit(addUser)', function (data) {
+        form.on('submit(addUser)', function (data1) {
             $.ajax({
                 type: 'post',
                 url: '/user/update', // ajax请求路径,
                 contentType: "application/json;charset=UTF-8",
-                data: JSON.stringify(data.field),
+                data: JSON.stringify(data1.field),
                 success: function (data) {
                     if (data.code == 200) {
-                        layer.msg('更新成功，2s后自动关闭', {
+                        var msg='更新成功，2s后自动关闭';
+                        if(data1.field.id==null || data1.field.id==''){
+                            msg="新增成功，初始密码为000000，2s后自动关闭";
+                       }
+                        layer.msg(msg, {
                             icon: 1,
                             time: 2000 //2秒关闭（如果不配置，默认是3秒）
                         }, function () {
@@ -302,7 +315,7 @@
             <div class="layui-input-block">
                 <input name="id" hidden="hidden">
                 <input name="username" id="userNameUpdate" class="layui-input" type="text" placeholder="请输入用户名"
-                       autocomplete="off" disabled
+                       autocomplete="off"
                        lay-verify="userNameVerify|required">
             </div>
         </div>

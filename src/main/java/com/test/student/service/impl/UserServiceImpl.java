@@ -74,4 +74,9 @@ public class UserServiceImpl implements UserService {
         success = userDao.updateUser(user);
         return success;
     }
+
+    @Override
+    public boolean insertUser(User user) {
+        return userDao.insertUser(user);
+    }
 }

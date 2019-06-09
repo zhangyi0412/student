@@ -18,6 +18,9 @@
         update tb_user set status =1 where id =#{id}
     </update>
     <update id="updateUser" parameterType="User">
-        update tb_user set status =#{status} ,email =#{email},tel=#{tel} where id =#{id}
+        update tb_user set username=#{username},status =#{status} ,email =#{email},tel=#{tel} where id =#{id}
     </update>
+    <insert id="insertUser" parameterType="User">
+        insert into tb_user(username,password,email,tel,status) values (#{username},#{password},#{email},#{tel},#{status})
+    </insert>
 </mapper>

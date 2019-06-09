@@ -28,4 +28,6 @@ public interface UserDao {
     int activeUser(User user);
 
     boolean updateUser(User user);
+
+    boolean insertUser(User user);
 }

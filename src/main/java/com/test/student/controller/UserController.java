@@ -85,7 +85,7 @@ public class UserController extends BaseController {
     }
 
     /**
-     * 编辑用户
+     * 编辑用户和新增用户，根据用参数是否包含id区分
      * @param user
      * @return
      * @throws
@@ -93,11 +93,23 @@ public class UserController extends BaseController {
     @ResponseBody
     @PostMapping("/update")
     public JsonResponse<Boolean> updateUser(@RequestBody  User user){
-        boolean success = userService.updateUser(user);
-        if (success) {
-            return success("修改成功");
-        } else {
-            return error("修改失败");
+        if(user.getId()!=null){
+            boolean success = userService.updateUser(user);
+            if (success) {
+                return success("修改成功");
+            } else {
+                return error("修改失败");
+            }
+        }else {
+            // 用户默认密码为电话号码
+            user.setPassword(user.getTel());
+            boolean success = userService.insertUser(user);
+            if (success) {
+                return success("新增成功");
+            } else {
+                return error("新增失败");
+            }
         }
+
     }
 }
