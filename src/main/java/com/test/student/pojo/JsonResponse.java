@@ -5,8 +5,8 @@ import lombok.Data;
 /**
  * 异步响应类
  *
- * @author zhangyi@g7.com.cn
- * @date 2019/3/23
+ * @author admin
+ * @date 2019/6/9
  */
 @Data
 public class JsonResponse<T> {

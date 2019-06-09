@@ -5,8 +5,8 @@ import com.test.student.pojo.JsonResponse;
 import java.net.HttpURLConnection;
 
 /**
- * @author zhangyi@g7.com.cn
- * @date 2019/3/23
+ * @author admin
+ * @date 2019/6/9
  */
 public class BaseController {
     /**

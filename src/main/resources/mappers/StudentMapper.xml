@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.test.student.dao.StudentDao">
+    <select id="listStudents" parameterType="Student" resultType="Student">
+        select * from tb_student WHERE
+        1=1
+        <if test="sname != null and sname != ''">
+            AND
+           tb_student.sname LIKE concat(concat('%',#{sname}),'%')
+        </if>
+        order by id
+    </select>
+    <update id="deleteStudent" parameterType="Student">
+        delete from tb_student  where id =#{id}
+    </update>
+    <update id="activeStudent" parameterType="Student">
+        update tb_student set status =1 where id =#{id}
+    </update>
+    <update id="updateStudent" parameterType="Student">
+        update tb_student set sname=#{sname} ,sno =#{sno},tel=#{tel}，birthday=#{birthday} where id =#{id}
+    </update>
+    <insert id="insertStudent" parameterType="Student">
+        insert into tb_student(sname,sno,birthday,tel) values (#{sname},#{sno},#{birthday},#{tel})
+    </insert>
+</mapper>
