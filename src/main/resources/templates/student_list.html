@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="commons/bar :: common_header(~{::title})">
+    <title>学生列表</title>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <!--引入抽取的topbar-->
+    <div th:replace="commons/bar::topbar"></div>
+    <!--引入侧边栏-->
+    <div th:replace="commons/bar::sidebar(activeUri='student_list.html')"></div>
+    <!--主体内容-->
+    <div class="layui-body" style="padding: 15px;color: red">
+        
+    </div>
+</div>
+<!--使用公有js-->
+<div th:replace="commons/bar::common_js">
+</div>
+<script>
+    // 使用Layui
+    layui.use(['table', 'jquery', 'layer', 'form'], function () {
+
+    });
+</script>
+</body>
+</html>

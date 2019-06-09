@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="commons/bar :: common_header(~{::title})">
+    <title>用户列表</title>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <!--引入抽取的topbar-->
+    <div th:replace="commons/bar::topbar"></div>
+    <!--引入侧边栏-->
+    <div th:replace="commons/bar::sidebar(activeUri='user_list.html')"></div>
+    <!--主体内容-->
+    <div class="layui-body" style="padding: 15px;color: red">
+        <table class="layui-hide" id="test" lay-filter="test">
+            <div class="layui-inline">
+                <input class="layui-input" id="userName" autocomplete="off" placeholder="请输入用户名搜索">
+            </div>
+            <button class="layui-btn  layui-icon layui-icon-search " id="search"></button>
+        </table>
+        <script type="text/html" id="toolbar">
+            <div class="layui-btn-group">
+                <button class="layui-btn layui-btn-sm layui-icon layui-icon-add-circle" id="addUser"> 增加用户
+                </button>
+                <button class="layui-btn layui-btn-sm" lay-event="deleteUsers">批量禁用</button>
+                <button class="layui-btn layui-btn-sm" lay-event="isAll">验证是否全选</button>
+            </div>
+        </script>
+
+        <script type="text/html" id="barDemo">
+            <button class="layui-btn layui-btn-xs" lay-event="edit">编 辑</button>
+            {{# if(d.status ==1) { }}<!--这是lay-ui的模板语法-->
+            <button class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">禁用用户</button>
+            {{#  } }}
+            {{# if(d.status ==0) { }}
+            <button class="layui-btn layui-btn-warm layui-btn-xs" lay-event="active">启用用户</button>
+            {{#  } }}
+
+        </script>
+    </div>
+    <div th:replace="commons/bar::footbar"></div>
+</div>
+<!--使用公有js-->
+<div th:replace="commons/bar::common_js">
+</div>
+<script>
+    // 使用Layui
+    // 使用Layui
+    layui.use(['table', 'jquery', 'layer', 'form'], function () {
+        // 获取Layui表格组件
+        var table = layui.table;
+        var $ = layui.jquery, layer = layui.layer;
+        var form = layui.form;
+        //增加用户按钮事件
+        $(document).on('click', '#addUser', function () {
+            layer.open({
+                title: "新增用户",
+                type: 2,
+                area: ['500px', "500px"],
+                content: '/user/addUserUI'//这里content是一个URL，如果你不想让iframe出现滚动条，你还可以content: ['http://sentsin.com', 'no']
+            });
+        });
+
+        // 表格渲染
+        table.render({
+            id: 'test', // 表格id
+            elem: '#test' // 表格所挂载的元素
+            , url: '/listUsers' // 请求后台的地址
+            , toolbar: '#toolbar' // 表格上方工具栏
+            , title: '用户数据表' // 表格名称
+            , cols: [ // 表头
+                [
+                    {type: 'checkbox'} // 是否开启多选功能
+                    // 定时表头具体内容
+                    , {field: 'id', title: '用户ID', width: 100, unresize: true, sort: true} // 用户Id
+                    , {field: 'username', title: '用户名'} // 用户名
+                    , {field: 'tel', title: '电话', sort: true} // 用户电话
+                    , {field: 'status', title: '状态', templet: '<div>{{d.status==1?"启用中...":"禁用中..."}}</div>'} // 用户状态，使用了模板语法
+                    , {field: 'email', title: '邮箱'} // 用户邮箱
+                    , {fixed: 'right', title: '操作', toolbar: '#barDemo'} // 对用户操作列
+                ]
+            ]
+            , response: {
+                statusCode: 200 //重新规定成功的状态码为 200，table 组件默认为 0
+            }
+            , page: true // 启动分页
+        });
+
+        //最上面的头工具栏事件
+        table.on('toolbar(test)', function (obj) {
+            var checkStatus = table.checkStatus(obj.config.id);
+            switch (obj.event) {
+                case 'deleteUsers':
+                    var data = checkStatus.data;
+                    if (data.length < 1) {
+                        layer.alert("请先选择数据");
+                        return;
+                    }
+                    layer.confirm('真的批量禁用么', function (index) {
+                        var success = deleteDatas(data, "/user/deletes");
+                        if (success) {
+                            layer.msg("批量禁用成功");
+                        } else {
+                            layer.msg("批量禁用失败，已经回滚为最初状态");
+                        }
+                        layer.close(index);
+                        // 重新加载表格
+                        table.reload('test', {
+                            page: {
+                                curr: 1 //重新从第 1 页开始
+                            }
+                        });
+                    });
+                    break;
+                case 'getCheckLength':
+                    var data = checkStatus.data;
+                    layer.msg('选中了：' + data.length + ' 个');
+                    break;
+                case 'isAll':
+                    layer.msg(checkStatus.isAll ? '全选' : '未全选');
+                    break;
+            }
+            ;
+        });
+
+        //监听行工具栏事件
+        table.on('tool(test)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('真的禁用么', function (index) {
+                    var success = deleteData(data, "/user/delete");
+                    if (success) {
+                        layer.msg("禁用成功");
+                    } else {
+                        layer.msg("禁用失败");
+                    }
+                    layer.close(index);
+                    // 重新加载表格
+                    table.reload('test', {
+                        page: {
+                            curr: 1 //重新从第 1 页开始
+                        }
+                    });
+                });
+            } else if (obj.event === 'edit') {
+                // 取得行数据
+                // 这个好像对radio不支持
+                form.val("updateForm", data);
+                var roleIds = data.roles;
+                // 复原
+                $("#role1").removeAttr('checked');
+                $("#role2").removeAttr('checked');
+
+                for (i=0;i<roleIds.length;i++){
+                    $("input[name='roles[]'][value=" + roleIds[i]["id"] + "]").prop('checked','true');
+                }
+                form.render();
+                // 打开模态框
+                layer.open({
+                    type: 1,
+                    title: "修改信息",
+                    area: ['500px', "500px"],
+                    content: $('#update') //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+                });
+
+            } else if (obj.event === 'active') {
+                layer.confirm('真的激活么', function (index) {
+                    var success = activeData(data, "/user/active");
+                    if (success) {
+                        layer.msg("激活成功");
+                    } else {
+                        layer.msg("激活失败");
+                    }
+                    layer.close(index);
+                    // 重新加载表格
+                    table.reload('test', {
+                        page: {
+                            curr: 1 //重新从第 1 页开始
+                        }
+                    });
+                });
+            }
+        });
+
+
+        // 禁用用户
+        function deleteData(data, url) {
+            var success = false;
+            $.ajax({
+                // 不需要异步
+                async: false,
+                type: 'post',
+                url: url, // ajax请求路径,
+                contentType: "application/json;charset=UTF-8",
+                data: JSON.stringify({id: data.id}),
+                success: function (data) {
+                    if (data.code == 200) {
+                        success = true;
+                    }
+                }
+            });
+            return success;
+        }
+
+        // 激活用户
+        function activeData(data, url) {
+            var success = false;
+            $.ajax({
+                // 不需要异步
+                async: false,
+                type: 'post',
+                url: url, // ajax请求路径,
+                contentType: "application/json;charset=UTF-8",
+                data: JSON.stringify({id: data.id}),
+                success: function (data) {
+                    if (data.code == 200) {
+                        success = true;
+                    }
+                }
+            });
+            return success;
+        }
+
+        // 批量禁用用户
+        function deleteDatas(data, url) {
+            var success = false;
+            var newdata = new Array();
+            for (i = 0; i < data.length; i++) {
+                newdata[i] = {id: data[i]["id"]};
+            }
+            $.ajax({
+                // 不需要异步
+                async: false,
+                type: 'post',
+                url: url, // ajax请求路径,
+                contentType: "application/json;charset=UTF-8",
+                data: JSON.stringify(newdata),
+                success: function (data) {
+                    if (data.code == 200) {
+                        success = true;
+                    }
+                }
+            });
+            return success;
+        }
+
+        //搜索用户按钮事件
+        $(document).on('click', '#search', function () {
+            var userName = $('#userName').val();
+            //执行重载
+            table.reload('test', {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+                , where: {
+                    userName: userName
+                }
+            });
+        });
+
+        // 更新用户
+        form.on('submit(addUser)', function (data) {
+            console.log(JSON.stringify(data.field))
+            var newdata = data.field;
+            var roles = new Array();
+            if($("#role1").is(':checked')){
+                roles.push({
+                    "id":1
+                })
+            }
+            if($("#role2").is(':checked')){
+                roles.push({
+                    "id":2
+                })
+            }
+            if(roles.length==0){
+                layer.msg("未选择角色");
+                return;
+            }
+            newdata["roles"]=roles;
+            $.ajax({
+                type: 'post',
+                url: '/user/update', // ajax请求路径,
+                contentType: "application/json;charset=UTF-8",
+                data: JSON.stringify(newdata),
+                success: function (data) {
+                    if (data.code == 200) {
+                        layer.msg('更新成功，2s后自动关闭', {
+                            icon: 1,
+                            time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                        }, function () {
+                            layer.closeAll();
+                            // 重新加载表格
+                            table.reload('test', {
+                                page: {
+                                    curr: 1 //重新从第 1 页开始
+                                }
+                            });
+                        });
+                    } else if (data != 200) {
+                        layer.msg('添加失败，2s后自动关闭。失败消息:' + data.msg, {
+                            icon: 1,
+                            time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                        }, function () {
+                            layer.closeAll();
+                        });
+                    }
+                },
+                error: function (data) {
+                    layer.msg('添加失败，2s后自动关闭。失败消息:' + data.msg, {
+                        icon: 1,
+                        time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                    }, function () {
+                        layer.closeAll();
+                    });
+                }
+            });
+            return false;
+        });
+
+    });
+</script>
+</body>
+</html>

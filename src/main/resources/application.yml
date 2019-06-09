@@ -1,0 +1,23 @@
+server:
+  port: 80
+spring:
+  thymeleaf:
+    cache: false # thymeleaf开发时设置成false
+  datasource: # 数据源配置
+    username: system
+    password: zy123321
+    url: jdbc:oracle:thin:@127.0.0.1:1521:test
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: oracle.jdbc.OracleDriver
+logging:
+  level:
+    com.test.student.dao: debug
+### mybatis配置
+mybatis:
+  mapper-locations: classpath:mappers/*.xml # 资源文件存在路径
+  type-aliases-package: com.test.student.pojo #别名
+  configuration:
+    map-underscore-to-camel-case: true # 开启驼峰映射
+### 分页插件配置
+pagehelper:
+  helper-dialect: oracle
