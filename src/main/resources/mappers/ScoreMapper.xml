@@ -9,18 +9,18 @@
         where b.PK_SID=a.ID and  b.PK_CID=c.ID
         and 1=1
         and c.status=1
-        <if test="student!=null and student.name != null and student.name != ''">
+        <if test="key!=null and key != null and key != ''">
             AND
-           a.sname LIKE concat(concat('%',#{student.name}),'%')
-        </if>
-        <if test="course!=null and course.cname != null and course.cname != ''">
-            AND
-            c.cname LIKE concat(concat('%',#{course.cname}),'%')
+            (a.sname LIKE concat(concat('%',#{key}),'%')
+            or
+            c.cname LIKE concat(concat('%',#{key}),'%')
+            or a.sno LIKE concat(concat('%',#{key}),'%')
+            )
         </if>
         order by id
     </select>
     <update id="deleteScore" parameterType="Score">
-        update tb_score set status =0 where id =#{id}
+        delete from tb_score  where id =#{id}
     </update>
     <update id="activeScore" parameterType="Score">
         update tb_score set status =1 where id =#{id}
@@ -29,6 +29,6 @@
         update tb_score set grade=#{grade} where id =#{id}
     </update>
     <insert id="insertScore" parameterType="Score">
-        insert into tb_score(scorename,password,email,tel,status) values (#{scorename},#{password},#{email},#{tel},#{status})
+        insert into tb_score(pk_sid,pk_cid,grade,CREATE_TIME) values (#{student.id},#{course.id},#{grade},#{createTime})
     </insert>
 </mapper>

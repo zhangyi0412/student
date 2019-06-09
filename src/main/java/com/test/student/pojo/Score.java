@@ -19,4 +19,6 @@ public class Score {
     private long grade;
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date createTime;
+    //搜索关键字
+    private String key;
 }

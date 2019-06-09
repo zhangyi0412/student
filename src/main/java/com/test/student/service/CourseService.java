@@ -33,4 +33,7 @@ public interface CourseService {
     boolean updateCourse(Course course);
 
     boolean insertCourse(Course course);
+
+    List<Course> listAllCourses();
+
 }

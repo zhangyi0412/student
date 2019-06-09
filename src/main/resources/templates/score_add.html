@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="commons/bar :: common_header(~{::title})">
+    <title>成绩添加</title>
+</head>
+<style>
+    /*-------该页面的css*/
+</style>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <form class="layui-form">
+            <br>
+            <div id="kindOptionView"></div>
+            <div id="courseOptionView"></div>
+
+            <div class="layui-form-item">
+                <label class="layui-form-label">分数</label>
+                <div class="layui-input-block">
+                    <input name="grade" required lay-verify="required" placeholder="请输入分数"
+                           autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">考试日期</label>
+                <div class="layui-input-block">
+                    <input name="createTime" id="birthday" class="layui-input" type="text" autocomplete="off"
+                           placeholder="请选择考试日期"
+                    >
+                </div>
+            </div>
+            <div class="layui-form-item" pane>
+                <div class="layui-input-block">
+                    <button type="button" class="layui-btn" lay-filter="addScore" lay-submit>提交</button>
+                    <button class="layui-btn layui-btn-primary" type="reset">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!--使用公有js-->
+<div th:replace="commons/bar::common_js">
+</div>
+<script>
+    /*-------该页面的js*/
+    layui.use(['laytpl','form', 'jquery', 'layer', 'layedit','upload','laydate'], function () {
+        var laydate = layui.laydate;
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#birthday' //指定元素
+        });
+        var upload = layui.upload;
+        var laytpl = layui.laytpl;
+        var form = layui.form;
+        form.render();
+        var $ = layui.$;
+        var layer = layui.layer;
+
+
+        // 处理option模板
+        var optionData;// 从后台获取
+        $.ajax({
+            async:false,
+            type: 'GET',
+            url: '/student/listAllStudents', // ajax请求路径,
+            contentType: "application/json;charset=UTF-8",
+            success: function (data) {
+                if (data.code == 200) {
+                    console.log(data);
+                    optionData = data;
+                }
+            }
+        });
+
+        var getTpl = $("#optionTpl").html(),
+            kindOptionView = $('#kindOptionView');
+        laytpl(getTpl).render(optionData, function (html) {
+            kindOptionView.html(html);
+        });
+        // 记得重新渲染
+        form.render();
+
+        // 处理课程模板
+        var courseData;// 从后台获取
+        $.ajax({
+            async:false,
+            type: 'GET',
+            url: '/course/listAllCourses', // ajax请求路径,
+            contentType: "application/json;charset=UTF-8",
+            success: function (data) {
+                if (data.code == 200) {
+                    console.log(data);
+                    courseData = data;
+                }
+            }
+        });
+
+        var getTpl2 = $("#courseTpl").html(),
+            courseOptionView = $('#courseOptionView');
+        laytpl(getTpl2).render(courseData, function (html) {
+            courseOptionView.html(html);
+        });
+        // 记得重新渲染
+        form.render();
+
+
+        // 提交
+        form.on('submit(addScore)', function (data) {
+            // 同步富文本编辑器的值
+           var params=data.field;
+           params.student={id:params.sid};
+           params.course={id:params.cid};
+            $.ajax({
+                type: 'post',
+                url: '/score/update', // ajax请求路径,
+                contentType: "application/json;charset=UTF-8",
+                data: JSON.stringify(data.field),
+                success: function (data) {
+                    if (data.code == 200) {
+                        layer.msg('添加成功，2s后自动关闭', {
+                            icon: 1,
+                            time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                        }, function () {
+                            //do something
+                            //当你在iframe页面关闭自身时
+                            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                            parent.layer.close(index); //再执行关闭
+                        });
+                    } else if (data != 200) {
+                        layer.msg('添加失败，2s后自动关闭。失败消息:' + data.msg, {
+                            icon: 1,
+                            time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                        }, function () {
+                            //do something
+                            //当你在iframe页面关闭自身时
+                            var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                            parent.layer.close(index); //再执行关闭
+                        });
+                    }
+                },
+                error: function (data) {
+                    layer.msg('添加失败，2s后自动关闭。失败消息:' + data.msg, {
+                        icon: 1,
+                        time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                    }, function () {
+                        //do something
+                        //当你在iframe页面关闭自身时
+                        var index = parent.layer.getFrameIndex(window.name); //先得到当前iframe层的索引
+                        parent.layer.close(index); //再执行关闭
+                    });
+                }
+            });
+            return false;
+        });
+    });
+
+</script>
+</body>
+<script id="optionTpl" type="text/html">
+    <div class="layui-form-item">
+        <label class="layui-form-label">学生</label>
+        <div class="layui-input-block">
+            <select name="sid" lay-filter="kind" required>
+                <option value="">请选择学生</option>
+                {{# layui.each(d.data, function(index, item){ }}
+                <option value="{{item.id}}">学号{{item.sno}}--姓名{{item.sname}}</option>
+                {{# }); }}
+            </select>
+        </div>
+    </div>
+</script>
+
+<script id="courseTpl" type="text/html">
+    <div class="layui-form-item">
+        <label class="layui-form-label">课程</label>
+        <div class="layui-input-block">
+            <select name="cid" lay-filter="course" required>
+                <option value="">请选择课程</option>
+                {{# layui.each(d.data, function(index, item){ }}
+                <option value="{{item.id}}">课程名{{item.cname}}--任课老师{{item.teacher}}</option>
+                {{# }); }}
+            </select>
+        </div>
+    </div>
+</script>
+</html>

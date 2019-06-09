@@ -79,4 +79,11 @@ public class CourseServiceImpl implements CourseService {
     public boolean insertCourse(Course course) {
         return courseDao.insertCourse(course);
     }
+
+    @Override
+    public List<Course> listAllCourses() {
+        Course course = new Course();
+        List<Course> courses = courseDao.listCourses(course);
+        return courses;
+    }
 }

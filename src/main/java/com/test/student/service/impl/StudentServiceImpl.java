@@ -79,4 +79,12 @@ public class StudentServiceImpl implements StudentService {
     public boolean insertStudent(Student student) {
         return studentDao.insertStudent(student);
     }
+
+    @Override
+    public List<Student> listAllStudents() {
+        Student student = new Student();
+        // 查询所有的用户
+        List<Student> students = studentDao.listStudents(student);
+        return students;
+    }
 }

@@ -33,4 +33,6 @@ public interface StudentService {
     boolean updateStudent(Student student);
 
     boolean insertStudent(Student student);
+
+    List<Student> listAllStudents();
 }

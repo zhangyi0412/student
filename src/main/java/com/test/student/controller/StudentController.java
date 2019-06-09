@@ -22,21 +22,30 @@ public class StudentController extends BaseController {
 
     /**
      * 分页查询用户
+     *
      * @param student 条件查询参数
-     * @param page 页码
-     * @param limit 页大小
+     * @param page    页码
+     * @param limit   页大小
      * @return
      */
     @ResponseBody
     @GetMapping("/listStudents")
     public JsonResponse<List<Student>> listStudents(Student student, @RequestParam(name = "page", defaultValue = "1") int page,
-                                             @RequestParam(name = "limit", defaultValue = "10") int limit) {
+                                                    @RequestParam(name = "limit", defaultValue = "10") int limit) {
         PageInfo<Student> pageInfo = studentService.listStudents(student, page, limit);
         return success(pageInfo.getList(), pageInfo.getTotal());
     }
 
+    @ResponseBody
+    @GetMapping("/listAllStudents")
+    public JsonResponse<List<Student>> listAllStudents() {
+        List<Student> students = studentService.listAllStudents();
+        return success(students);
+    }
+
     /**
      * 禁用用户
+     *
      * @param student
      * @return
      */
@@ -53,13 +62,14 @@ public class StudentController extends BaseController {
 
     /**
      * 激活用户
+     *
      * @param student
      * @return
      * @throws
      */
     @ResponseBody
     @PostMapping("/active")
-    public JsonResponse<Boolean> activeStudent(@RequestBody Student student)   {
+    public JsonResponse<Boolean> activeStudent(@RequestBody Student student) {
         boolean success = studentService.activeStudent(student);
         if (success) {
             return success("激活成功");
@@ -70,12 +80,13 @@ public class StudentController extends BaseController {
 
     /**
      * 批量激活
+     *
      * @param students
      * @return
      */
     @ResponseBody
     @PostMapping("/deletes")
-    public JsonResponse<Boolean> deleteStudents(@RequestBody List<Student> students){
+    public JsonResponse<Boolean> deleteStudents(@RequestBody List<Student> students) {
         boolean success = studentService.deleteStudents(students);
         if (success) {
             return success("删除成功");
@@ -86,21 +97,22 @@ public class StudentController extends BaseController {
 
     /**
      * 编辑用户和新增用户，根据用参数是否包含id区分
+     *
      * @param student
      * @return
      * @throws
      */
     @ResponseBody
     @PostMapping("/update")
-    public JsonResponse<Boolean> updateStudent(@RequestBody  Student student){
-        if(student.getId()!=null){
+    public JsonResponse<Boolean> updateStudent(@RequestBody Student student) {
+        if (student.getId() != null) {
             boolean success = studentService.updateStudent(student);
             if (success) {
                 return success("修改成功");
             } else {
                 return error("修改失败");
             }
-        }else {
+        } else {
             boolean success = studentService.insertStudent(student);
             if (success) {
                 return success("新增成功");

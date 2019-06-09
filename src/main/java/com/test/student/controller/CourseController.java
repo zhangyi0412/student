@@ -1,8 +1,8 @@
 package com.test.student.controller;
 
 import com.github.pagehelper.PageInfo;
-import com.test.student.pojo.JsonResponse;
 import com.test.student.pojo.Course;
+import com.test.student.pojo.JsonResponse;
 import com.test.student.service.CourseService;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -109,5 +109,12 @@ public class CourseController extends BaseController {
             }
         }
 
+    }
+
+    @ResponseBody
+    @GetMapping("/listAllCourses")
+    public JsonResponse<List<Course>> listAllStudents() {
+        List<Course> courses = courseService.listAllCourses();
+        return success(courses);
     }
 }

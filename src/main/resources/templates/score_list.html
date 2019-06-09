@@ -19,7 +19,7 @@
         </table>
         <script type="text/html" id="toolbar">
             <div class="layui-btn-group">
-                <button class="layui-btn layui-btn-sm layui-icon layui-icon-add-circle" id="addUser"> 增加成绩
+                <button class="layui-btn layui-btn-sm layui-icon layui-icon-add-circle" id="addUser"> 增加学生成绩
                 </button>
                 <button class="layui-btn layui-btn-sm" lay-event="deleteUsers">批量删除</button>
                 <button class="layui-btn layui-btn-sm" lay-event="isAll">验证是否全选</button>
@@ -28,12 +28,8 @@
 
         <script type="text/html" id="barDemo">
             <button class="layui-btn layui-btn-xs" lay-event="edit">编 辑</button>
-            {{# if(d.status ==1) { }}<!--这是lay-ui的模板语法-->
             <button class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除成绩</button>
-            {{#  } }}
-            {{# if(d.status ==0) { }}
-            <button class="layui-btn layui-btn-warm layui-btn-xs" lay-event="active">启用成绩</button>
-            {{#  } }}
+
 
         </script>
     </div>
@@ -52,20 +48,20 @@
         var form = layui.form;
         //增加成绩按钮事件
         $(document).on('click', '#addUser', function () {
-            form.val("updateForm",{
-                username:null,
-                email:null,
-                tel:null,
-                id:null,
-                status:null
-            })
-            form.render();
             // 打开模态框
             layer.open({
-                type: 1,
+                type: 2,
                 title: "新增",
-                area: '500px',
-                content: $('#update') //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+                area: ['500px','800px'],
+                content: ['/score_add.html']
+            },function () {
+                layer.closeAll();
+                // 重新加载表格
+                table.reload('test', {
+                    page: {
+                        curr: 1 //重新从第 1 页开始
+                    }
+                });
             });
         });
 
@@ -255,7 +251,7 @@
                     curr: 1 //重新从第 1 页开始
                 }
                 , where: {
-                    username: userName
+                    key: userName
                 }
             });
         });
@@ -316,7 +312,7 @@
             <label class="layui-form-label">成绩名</label>
             <div class="layui-input-block">
                 <input name="id" hidden="hidden">
-                <input name="score" id="userNameUpdate" class="layui-input" type="text" placeholder="请输入分数"
+                <input name="grade" id="userNameUpdate" class="layui-input" type="text" placeholder="请输入分数"
                        autocomplete="off">
             </div>
         </div>
