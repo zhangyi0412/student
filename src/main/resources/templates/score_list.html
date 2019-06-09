@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="commons/bar :: common_header(~{::title})">
+    <title>成绩列表</title>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <!--引入抽取的topbar-->
+    <div th:replace="commons/bar::topbar"></div>
+    <!--引入侧边栏-->
+    <div th:replace="commons/bar::sidebar(activeUri='score_list.html')"></div>
+    <!--主体内容-->
+    <div class="layui-body" style="padding: 15px;color: red">
+        <table class="layui-hide" id="test" lay-filter="test">
+            <div class="layui-inline">
+                <input class="layui-input" id="userName" autocomplete="off" placeholder="输入学号/学生姓名/课程名搜索" style="width:300px" >
+            </div>
+            <button class="layui-btn  layui-icon layui-icon-search " id="search"></button>
+        </table>
+        <script type="text/html" id="toolbar">
+            <div class="layui-btn-group">
+                <button class="layui-btn layui-btn-sm layui-icon layui-icon-add-circle" id="addUser"> 增加成绩
+                </button>
+                <button class="layui-btn layui-btn-sm" lay-event="deleteUsers">批量删除</button>
+                <button class="layui-btn layui-btn-sm" lay-event="isAll">验证是否全选</button>
+            </div>
+        </script>
+
+        <script type="text/html" id="barDemo">
+            <button class="layui-btn layui-btn-xs" lay-event="edit">编 辑</button>
+            {{# if(d.status ==1) { }}<!--这是lay-ui的模板语法-->
+            <button class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除成绩</button>
+            {{#  } }}
+            {{# if(d.status ==0) { }}
+            <button class="layui-btn layui-btn-warm layui-btn-xs" lay-event="active">启用成绩</button>
+            {{#  } }}
+
+        </script>
+    </div>
+    <div th:replace="commons/bar::footbar"></div>
+</div>
+<!--使用公有js-->
+<div th:replace="commons/bar::common_js">
+</div>
+<script>
+    // 使用Layui
+    // 使用Layui
+    layui.use(['table', 'jquery', 'layer', 'form'], function () {
+        // 获取Layui表格组件
+        var table = layui.table;
+        var $ = layui.jquery, layer = layui.layer;
+        var form = layui.form;
+        //增加成绩按钮事件
+        $(document).on('click', '#addUser', function () {
+            form.val("updateForm",{
+                username:null,
+                email:null,
+                tel:null,
+                id:null,
+                status:null
+            })
+            form.render();
+            // 打开模态框
+            layer.open({
+                type: 1,
+                title: "新增",
+                area: '500px',
+                content: $('#update') //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+            });
+        });
+
+        // 表格渲染
+        table.render({
+            id: 'test', // 表格id
+            elem: '#test' // 表格所挂载的元素
+            , url: '/score/listScores' // 请求后台的地址
+            , toolbar: '#toolbar' // 表格上方工具栏
+            , title: '成绩数据表' // 表格名称
+            , cols: [ // 表头
+                [
+                    {type: 'checkbox'} // 是否开启多选功能
+                    // 定时表头具体内容
+                    , {field: 'id', title: '成绩ID', width: 100, unresize: true, sort: true} // 成绩Id
+                    , {field: 'student.sno', title: '学号', templet: '<div>{{d.student==null?"":d.student.sno}}</div>'}
+                    , {field: 'student.sname', title: '学生姓名', templet: '<div>{{d.student==null?"":d.student.sname}}</div>'}
+                    , {field: 'course.cname', title: '课程名字', templet: '<div>{{d.course==null?"":d.course.cname}}</div>'}
+                    , {field: 'course.teacher', title: '授课老师', templet: '<div>{{d.course==null?"":d.course.teacher}}</div>'}
+                    , {field: 'grade', title: '分数'} // 成绩电话
+                    , {field: 'createTime', title: '日期'} // 成绩邮箱
+                    , {fixed: 'right', title: '操作', toolbar: '#barDemo'} // 对成绩操作列
+                ]
+            ]
+            , response: {
+                statusCode: 200 //重新规定成功的状态码为 200，table 组件默认为 0
+            }
+            , page: true // 启动分页
+        });
+
+        //最上面的头工具栏事件
+        table.on('toolbar(test)', function (obj) {
+            var checkStatus = table.checkStatus(obj.config.id);
+            switch (obj.event) {
+                case 'deleteUsers':
+                    var data = checkStatus.data;
+                    if (data.length < 1) {
+                        layer.alert("请先选择数据");
+                        return;
+                    }
+                    layer.confirm('真的批量删除么', function (index) {
+                        var success = deleteDatas(data, "/score/deletes");
+                        if (success) {
+                            layer.msg("批量删除成功");
+                        } else {
+                            layer.msg("批量删除失败，已经回滚为最初状态");
+                        }
+                        layer.close(index);
+                        // 重新加载表格
+                        table.reload('test', {
+                            page: {
+                                curr: 1 //重新从第 1 页开始
+                            }
+                        });
+                    });
+                    break;
+                case 'getCheckLength':
+                    var data = checkStatus.data;
+                    layer.msg('选中了：' + data.length + ' 个');
+                    break;
+                case 'isAll':
+                    layer.msg(checkStatus.isAll ? '全选' : '未全选');
+                    break;
+            }
+            ;
+        });
+
+        //监听行工具栏事件
+        table.on('tool(test)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'del') {
+                layer.confirm('真的删除么', function (index) {
+                    var success = deleteData(data, "/score/delete");
+                    if (success) {
+                        layer.msg("删除成功");
+                    } else {
+                        layer.msg("删除失败");
+                    }
+                    layer.close(index);
+                    // 重新加载表格
+                    table.reload('test', {
+                        page: {
+                            curr: 1 //重新从第 1 页开始
+                        }
+                    });
+                });
+            } else if (obj.event === 'edit') {
+                // 取得行数据
+                // 这个好像对radio不支持
+                form.val("updateForm", data);
+                form.render();
+                // 打开模态框
+                layer.open({
+                    type: 1,
+                    title: "编辑成绩信息",
+                    area: '500px',
+                    content: $('#update') //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+                });
+
+            } else if (obj.event === 'active') {
+                layer.confirm('真的激活么', function (index) {
+                    var success = activeData(data, "/score/active");
+                    if (success) {
+                        layer.msg("激活成功");
+                    } else {
+                        layer.msg("激活失败");
+                    }
+                    layer.close(index);
+                    // 重新加载表格
+                    table.reload('test', {
+                        page: {
+                            curr: 1 //重新从第 1 页开始
+                        }
+                    });
+                });
+            }
+        });
+
+
+        // 删除成绩
+        function deleteData(data, url) {
+            var success = false;
+            $.ajax({
+                // 不需要异步
+                async: false,
+                type: 'post',
+                url: url, // ajax请求路径,
+                contentType: "application/json;charset=UTF-8",
+                data: JSON.stringify({id: data.id}),
+                success: function (data) {
+                    if (data.code == 200) {
+                        success = true;
+                    }
+                }
+            });
+            return success;
+        }
+
+        // 激活成绩
+        function activeData(data, url) {
+            var success = false;
+            $.ajax({
+                // 不需要异步
+                async: false,
+                type: 'post',
+                url: url, // ajax请求路径,
+                contentType: "application/json;charset=UTF-8",
+                data: JSON.stringify({id: data.id}),
+                success: function (data) {
+                    if (data.code == 200) {
+                        success = true;
+                    }
+                }
+            });
+            return success;
+        }
+
+        // 批量删除成绩
+        function deleteDatas(data, url) {
+            var success = false;
+            var newdata = new Array();
+            for (i = 0; i < data.length; i++) {
+                newdata[i] = {id: data[i]["id"]};
+            }
+            $.ajax({
+                // 不需要异步
+                async: false,
+                type: 'post',
+                url: url, // ajax请求路径,
+                contentType: "application/json;charset=UTF-8",
+                data: JSON.stringify(newdata),
+                success: function (data) {
+                    if (data.code == 200) {
+                        success = true;
+                    }
+                }
+            });
+            return success;
+        }
+
+        //搜索成绩按钮事件
+        $(document).on('click', '#search', function () {
+            var userName = $('#userName').val();
+            //执行重载
+            table.reload('test', {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+                , where: {
+                    username: userName
+                }
+            });
+        });
+
+        // 更新成绩
+        form.on('submit(addUser)', function (data1) {
+            $.ajax({
+                type: 'post',
+                url: '/score/update', // ajax请求路径,
+                contentType: "application/json;charset=UTF-8",
+                data: JSON.stringify(data1.field),
+                success: function (data) {
+                    if (data.code == 200) {
+                        var msg='更新成功，2s后自动关闭';
+                        if(data1.field.id==null || data1.field.id==''){
+                            msg="新增成功，初始密码为000000，2s后自动关闭";
+                       }
+                        layer.msg(msg, {
+                            icon: 1,
+                            time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                        }, function () {
+                            layer.closeAll();
+                            // 重新加载表格
+                            table.reload('test', {
+                                page: {
+                                    curr: 1 //重新从第 1 页开始
+                                }
+                            });
+                        });
+                    } else if (data != 200) {
+                        layer.msg('添加失败，2s后自动关闭。失败消息:' + data.msg, {
+                            icon: 1,
+                            time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                        }, function () {
+                            layer.closeAll();
+                        });
+                    }
+                },
+                error: function (data) {
+                    layer.msg('添加失败，2s后自动关闭。失败消息:' + data.msg, {
+                        icon: 1,
+                        time: 2000 //2秒关闭（如果不配置，默认是3秒）
+                    }, function () {
+                        layer.closeAll();
+                    });
+                }
+            });
+            return false;
+        });
+
+    });
+</script>
+</body>
+<div id="update" style="display: none">
+    <form class="layui-form" lay-filter="updateForm">
+        <br>
+        <div class="layui-form-item">
+            <label class="layui-form-label">成绩名</label>
+            <div class="layui-input-block">
+                <input name="id" hidden="hidden">
+                <input name="score" id="userNameUpdate" class="layui-input" type="text" placeholder="请输入分数"
+                       autocomplete="off">
+            </div>
+        </div>
+        <div class="layui-form-item" pane>
+            <div class="layui-input-block">
+                <button type="button" class="layui-btn" lay-filter="addUser" lay-submit>提交</button>
+                <button class="layui-btn layui-btn-primary" type="reset">重置</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+</html>
