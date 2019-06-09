@@ -13,7 +13,8 @@
     <div class="layui-body" style="padding: 15px;color: red">
         <table class="layui-hide" id="test" lay-filter="test">
             <div class="layui-inline">
-                <input class="layui-input" id="userName" autocomplete="off" placeholder="输入学号/学生姓名/课程名搜索" style="width:300px" >
+                <input class="layui-input" id="userName" autocomplete="off" placeholder="输入学号/学生姓名/课程名搜索"
+                       style="width:300px">
             </div>
             <button class="layui-btn  layui-icon layui-icon-search " id="search"></button>
         </table>
@@ -46,24 +47,6 @@
         var table = layui.table;
         var $ = layui.jquery, layer = layui.layer;
         var form = layui.form;
-        //增加成绩按钮事件
-        $(document).on('click', '#addUser', function () {
-            // 打开模态框
-            layer.open({
-                type: 2,
-                title: "新增",
-                area: ['500px','800px'],
-                content: ['/score_add.html']
-            },function () {
-                layer.closeAll();
-                // 重新加载表格
-                table.reload('test', {
-                    page: {
-                        curr: 1 //重新从第 1 页开始
-                    }
-                });
-            });
-        });
 
         // 表格渲染
         table.render({
@@ -78,9 +61,17 @@
                     // 定时表头具体内容
                     , {field: 'id', title: '成绩ID', width: 100, unresize: true, sort: true} // 成绩Id
                     , {field: 'student.sno', title: '学号', templet: '<div>{{d.student==null?"":d.student.sno}}</div>'}
-                    , {field: 'student.sname', title: '学生姓名', templet: '<div>{{d.student==null?"":d.student.sname}}</div>'}
+                    , {
+                    field: 'student.sname',
+                    title: '学生姓名',
+                    templet: '<div>{{d.student==null?"":d.student.sname}}</div>'
+                }
                     , {field: 'course.cname', title: '课程名字', templet: '<div>{{d.course==null?"":d.course.cname}}</div>'}
-                    , {field: 'course.teacher', title: '授课老师', templet: '<div>{{d.course==null?"":d.course.teacher}}</div>'}
+                    , {
+                    field: 'course.teacher',
+                    title: '授课老师',
+                    templet: '<div>{{d.course==null?"":d.course.teacher}}</div>'
+                }
                     , {field: 'grade', title: '分数'} // 成绩电话
                     , {field: 'createTime', title: '日期'} // 成绩邮箱
                     , {fixed: 'right', title: '操作', toolbar: '#barDemo'} // 对成绩操作列
@@ -91,7 +82,22 @@
             }
             , page: true // 启动分页
         });
-
+        //增加成绩按钮事件
+        $(document).on('click', '#addUser', function () {
+            // 打开模态框
+            layer.open({
+                type: 2,
+                title: "新增",
+                area: ['500px', '800px'],
+                content: ['/score_add.html']
+            });
+            // 重新加载表格
+            table.reload('test', {
+                page: {
+                    curr: 1 //重新从第 1 页开始
+                }
+            });
+        });
         //最上面的头工具栏事件
         table.on('toolbar(test)', function (obj) {
             var checkStatus = table.checkStatus(obj.config.id);
@@ -265,10 +271,10 @@
                 data: JSON.stringify(data1.field),
                 success: function (data) {
                     if (data.code == 200) {
-                        var msg='更新成功，2s后自动关闭';
-                        if(data1.field.id==null || data1.field.id==''){
-                            msg="新增成功，初始密码为000000，2s后自动关闭";
-                       }
+                        var msg = '更新成功，2s后自动关闭';
+                        if (data1.field.id == null || data1.field.id == '') {
+                            msg = "新增成功，2s后自动关闭";
+                        }
                         layer.msg(msg, {
                             icon: 1,
                             time: 2000 //2秒关闭（如果不配置，默认是3秒）
