@@ -33,4 +33,6 @@ public interface UserService {
     boolean updateUser(User user);
 
     boolean insertUser(User user);
+
+    User getUser(User user);
 }

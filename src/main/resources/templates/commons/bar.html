@@ -23,7 +23,7 @@
                 <li class="layui-nav-item">
                     <a href="javascript:;">
                         <!--<img th:src="${session.user?.head}" class="layui-nav-img">-->
-                        欢迎用户
+                        欢迎用户：
                         [[${session.userName}]]
                     </a>
                     <!--<dl class="layui-nav-child">-->
@@ -86,12 +86,12 @@
                         // 这里需要变成同步的，因为后面的valid需要他里面的值来判断
                         async: false,
                         type: 'post',
-                        url: '/user/logOut', // ajax请求路径,
+                        url: '/user/logout', // ajax请求路径,
                         contentType: "application/json;charset=UTF-8",
                         success: function (data) {
                             if (data.code == 200) {
                                 layer.msg("退出成功");
-                                window.location.href = "/login";
+                                window.location.href = "/login.html";
                             } else {
                                 layer.msg("退出失败");
                             }

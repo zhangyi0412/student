@@ -23,11 +23,11 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     }
 
-    //    @Override
+//        @Override
 //    public void addInterceptors(InterceptorRegistry registry) {
 //        registry.addInterceptor(new LoginInterceptor())
 //                .addPathPatterns("/**")
-//                .excludePathPatterns("/index", "/login", "/user/login", "/asserts/**");
+//                .excludePathPatterns("/login.html");
 //    }
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
