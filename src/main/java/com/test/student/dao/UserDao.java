@@ -11,5 +11,19 @@ import java.util.List;
  */
 @Mapper
 public interface UserDao {
+    /**
+     * 查询用户
+     * @param user
+     * @return
+     */
     public List<User> listUsers(User user);
+
+    /**
+     * 禁用用户
+     * @param user
+     * @return
+     */
+    int deleteUser(User user);
+
+    int activeUser(User user);
 }

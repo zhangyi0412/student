@@ -11,4 +11,10 @@
         </if>
         order by id
     </select>
+    <update id="deleteUser" parameterType="User">
+        update tb_user set status =0 where id =#{id}
+    </update>
+    <update id="activeUser" parameterType="User">
+        update tb_user set status =1 where id =#{id}
+    </update>
 </mapper>

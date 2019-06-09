@@ -30,4 +30,41 @@ public class UserServiceImpl implements UserService {
         // 返回分页信息
         return pageInfo;
     }
+
+    @Override
+    public boolean deleteUser(User user) {
+        int count = 0;
+        count = userDao.deleteUser(user);
+        if (count > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean activeUser(User user) {
+        int count = 0;
+        count = userDao.activeUser(user);
+        if (count > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean deleteUsers(List<User> users) {
+        int count = 0;
+        for (User user : users) {
+            if (deleteUser(user)) {
+                count++;
+            }
+        }
+        if (count == users.size()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

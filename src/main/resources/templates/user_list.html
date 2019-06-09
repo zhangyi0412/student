@@ -64,7 +64,7 @@
         table.render({
             id: 'test', // 表格id
             elem: '#test' // 表格所挂载的元素
-            , url: '/listUsers' // 请求后台的地址
+            , url: '/user/listUsers' // 请求后台的地址
             , toolbar: '#toolbar' // 表格上方工具栏
             , title: '用户数据表' // 表格名称
             , cols: [ // 表头
@@ -73,7 +73,7 @@
                     // 定时表头具体内容
                     , {field: 'id', title: '用户ID', width: 100, unresize: true, sort: true} // 用户Id
                     , {field: 'username', title: '用户名'} // 用户名
-                    , {field: 'tel', title: '电话', sort: true} // 用户电话
+                    , {field: 'tel', title: '电话'} // 用户电话
                     , {field: 'status', title: '状态', templet: '<div>{{d.status==1?"启用中...":"禁用中..."}}</div>'} // 用户状态，使用了模板语法
                     , {field: 'email', title: '邮箱'} // 用户邮箱
                     , {fixed: 'right', title: '操作', toolbar: '#barDemo'} // 对用户操作列
@@ -145,20 +145,12 @@
                 // 取得行数据
                 // 这个好像对radio不支持
                 form.val("updateForm", data);
-                var roleIds = data.roles;
-                // 复原
-                $("#role1").removeAttr('checked');
-                $("#role2").removeAttr('checked');
-
-                for (i=0;i<roleIds.length;i++){
-                    $("input[name='roles[]'][value=" + roleIds[i]["id"] + "]").prop('checked','true');
-                }
                 form.render();
                 // 打开模态框
                 layer.open({
                     type: 1,
-                    title: "修改信息",
-                    area: ['500px', "500px"],
+                    title: "编辑用户信息",
+                    // area: ['500px','auto'],
                     content: $('#update') //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
                 });
 
@@ -252,7 +244,7 @@
                     curr: 1 //重新从第 1 页开始
                 }
                 , where: {
-                    userName: userName
+                    username: userName
                 }
             });
         });
@@ -262,21 +254,21 @@
             console.log(JSON.stringify(data.field))
             var newdata = data.field;
             var roles = new Array();
-            if($("#role1").is(':checked')){
+            if ($("#role1").is(':checked')) {
                 roles.push({
-                    "id":1
+                    "id": 1
                 })
             }
-            if($("#role2").is(':checked')){
+            if ($("#role2").is(':checked')) {
                 roles.push({
-                    "id":2
+                    "id": 2
                 })
             }
-            if(roles.length==0){
+            if (roles.length == 0) {
                 layer.msg("未选择角色");
                 return;
             }
-            newdata["roles"]=roles;
+            newdata["roles"] = roles;
             $.ajax({
                 type: 'post',
                 url: '/user/update', // ajax请求路径,
@@ -320,4 +312,41 @@
     });
 </script>
 </body>
+<div id="update" style="display: none">
+    <form class="layui-form" lay-filter="updateForm">
+        <br>
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户名</label>
+            <div class="layui-input-block">
+                <input name="id" hidden="hidden">
+                <input name="username" id="userNameUpdate" class="layui-input" type="text" placeholder="请输入用户名"
+                       autocomplete="off" disabled
+                       lay-verify="userNameVerify|required">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">邮箱</label>
+            <div class="layui-input-block">
+                <input name="email" id="emailUpdate" class="layui-input" type="text" autocomplete="off"
+                       placeholder="请输入邮箱"
+                >
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">电话</label>
+            <div class="layui-input-block">
+                <input name="tel" id="telephone" class="layui-input" type="text" autocomplete="off"
+                       placeholder="请输入电话"
+                >
+            </div>
+        </div>
+        <div class="layui-form-item" pane>
+            <div class="layui-input-block">
+                <button type="button" class="layui-btn" lay-filter="addUser" lay-submit>提交</button>
+                <button class="layui-btn layui-btn-primary" type="reset">重置</button>
+            </div>
+        </div>
+    </form>
+</div>
+
 </html>
