@@ -26,4 +26,6 @@ public interface UserDao {
     int deleteUser(User user);
 
     int activeUser(User user);
+
+    boolean updateUser(User user);
 }

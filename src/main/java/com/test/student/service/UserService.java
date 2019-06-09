@@ -29,4 +29,6 @@ public interface UserService {
     boolean activeUser(User user);
 
     boolean deleteUsers(List<User> users);
+
+    boolean updateUser(User user);
 }

@@ -150,7 +150,7 @@
                 layer.open({
                     type: 1,
                     title: "编辑用户信息",
-                    // area: ['500px','auto'],
+                    area: '500px',
                     content: $('#update') //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
                 });
 
@@ -251,29 +251,11 @@
 
         // 更新用户
         form.on('submit(addUser)', function (data) {
-            console.log(JSON.stringify(data.field))
-            var newdata = data.field;
-            var roles = new Array();
-            if ($("#role1").is(':checked')) {
-                roles.push({
-                    "id": 1
-                })
-            }
-            if ($("#role2").is(':checked')) {
-                roles.push({
-                    "id": 2
-                })
-            }
-            if (roles.length == 0) {
-                layer.msg("未选择角色");
-                return;
-            }
-            newdata["roles"] = roles;
             $.ajax({
                 type: 'post',
                 url: '/user/update', // ajax请求路径,
                 contentType: "application/json;charset=UTF-8",
-                data: JSON.stringify(newdata),
+                data: JSON.stringify(data.field),
                 success: function (data) {
                     if (data.code == 200) {
                         layer.msg('更新成功，2s后自动关闭', {

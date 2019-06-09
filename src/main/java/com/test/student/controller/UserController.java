@@ -83,4 +83,21 @@ public class UserController extends BaseController {
             return error("删除失败");
         }
     }
+
+    /**
+     * 编辑用户
+     * @param user
+     * @return
+     * @throws
+     */
+    @ResponseBody
+    @PostMapping("/update")
+    public JsonResponse<Boolean> updateUser(@RequestBody  User user){
+        boolean success = userService.updateUser(user);
+        if (success) {
+            return success("修改成功");
+        } else {
+            return error("修改失败");
+        }
+    }
 }
